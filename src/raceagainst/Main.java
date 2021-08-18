@@ -6,6 +6,7 @@ import raceagainst.graphics.Shader;
 import raceagainst.input.Input;
 import raceagainst.math.Matrix4f;
 import raceagainst.racecourse.RaceCourse;
+import raceagainst.racecourse.StartMenu;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -26,6 +27,7 @@ public class Main {
 
     private long window;
     private RaceCourse rc;
+    private StartMenu startMenu;
 
     public void init() {
         // Initialize the glfw library, and handle errors.
@@ -75,10 +77,10 @@ public class Main {
         Shader.loadAllShaders();
 
         //TODO: Set the projection matrices for all objects
-        Shader.RACE_BG.enable();
-        Shader.RACE_BG.setUniformMat4f("pr_matrix", pr_matrix);
-        Shader.RACE_BG.setUniform1i("tex", 1);
-        Shader.RACE_BG.disable();
+        Shader.BG.enable();
+        Shader.BG.setUniformMat4f("pr_matrix", pr_matrix);
+        Shader.BG.setUniform1i("tex", 1);
+        Shader.BG.disable();
 
         Shader.PLAYER_CAR.enable();
         Shader.PLAYER_CAR.setUniformMat4f("pr_matrix", pr_matrix);
@@ -86,11 +88,14 @@ public class Main {
         Shader.PLAYER_CAR.disable();
 
         //TODO: Draw the game start screen
-        rc = new RaceCourse();
+        startMenu = new StartMenu();
+        //glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
     }
 
+    /** While game is running, updates and renders. */
     public void run() {
         init();
+        initWindowOpen();
 
         //TODO: Later - Set up timer, count down to race start
 
@@ -121,14 +126,16 @@ public class Main {
         glfwSwapBuffers(window);
     }
 
+    /** Renders the start game screen continuously until the player
+     * presses SPACE. After SPACE presses, creates a new RaceCourse.
+     */
     private void initWindowOpen() {
         while (!initWindowOpened) {
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear the frame buffer
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             if (Input.isKeyDown(GLFW_KEY_SPACE)) {
                 //TODO: Draw the race start screen
                 rc = new RaceCourse();
-                rc.render();
                 initWindowOpened = true;
             }
 
@@ -138,6 +145,7 @@ public class Main {
             }
 
             glfwPollEvents();
+            startMenu.render();
             glfwSwapBuffers(window);
         }
     }

@@ -22,7 +22,7 @@ public class Shader {
     public static final int VERTEX_ATTRIB = 0;
     public static final int TCOORD_ATTRIB = 1;
 
-    public static Shader RACE_BG, PLAYER_CAR;
+    public static Shader BG, PLAYER_CAR;
 
     private int ID;
     private Map<String, Integer> locationCache = new HashMap<String, Integer>();
@@ -32,7 +32,7 @@ public class Shader {
     }
 
     public static void loadAllShaders() {
-        RACE_BG = new Shader("shaders/racebg.vert", "shaders/racebg.frag");
+        BG = new Shader("shaders/bg.vert", "shaders/bg.frag");
         PLAYER_CAR = new Shader("shaders/playercar.vert", "shaders/playercar.frag");
     }
 

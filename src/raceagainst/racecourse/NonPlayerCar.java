@@ -3,13 +3,10 @@ package raceagainst.racecourse;
 import raceagainst.graphics.Shader;
 import raceagainst.graphics.Texture;
 import raceagainst.graphics.VertexArray;
-import raceagainst.input.Input;
 import raceagainst.math.Matrix4f;
 import raceagainst.math.Vector3f;
 
-import static org.lwjgl.glfw.GLFW.*;
-
-public class PlayerCar {
+public class NonPlayerCar {
 
     private float CAR_SIZE = 3.0f;
     private VertexArray car;
@@ -21,12 +18,12 @@ public class PlayerCar {
      * Index 1 = top left corner
      * Index 2 = top right corner
      * Index 3 = bottom right corner */
-    public PlayerCar() {
+    public NonPlayerCar() {
         float[] vertices = {
                 -CAR_SIZE / 2, -CAR_SIZE / 2, 0.5f,
                 -CAR_SIZE / 2,  CAR_SIZE / 2, 0.5f,
-                 CAR_SIZE / 2,  CAR_SIZE / 2, 0.5f,
-                 CAR_SIZE / 2, -CAR_SIZE / 2, 0.5f
+                CAR_SIZE / 2,  CAR_SIZE / 2, 0.5f,
+                CAR_SIZE / 2, -CAR_SIZE / 2, 0.5f
         };
 
         byte[] indices = {
@@ -43,31 +40,15 @@ public class PlayerCar {
 
         car = new VertexArray(vertices, indices, textureCoordinates);
         carTexture = new Texture("res/playercar.png");
-        position = new Vector3f(-5.0f, -5.60f, 0.0f);
+        position = new Vector3f(5.0f, -5.60f, 0.0f);
     }
 
-    /** Updates the position of the player car,
-     * continuously going up, but also left or right if player presses.
-     */
     public void update() {
         float xDelta = 0.05f;
         float yDelta = 0.02f;
-
-        if (Input.isKeyDown(GLFW_KEY_LEFT)) {
-            if (position.x - xDelta <= -9.5) {
-                return;
-            }
-            position.x -= xDelta;
-        } else if (Input.isKeyDown(GLFW_KEY_RIGHT)) {
-            if (position.x + xDelta >= 0.0f) {
-                return;
-            }
-            position.x += xDelta;
-        }
         position.y += yDelta;
     }
 
-    /** Renders the player car, setting an ml_matrix that reflects updated positions. */
     public void render() {
         Shader.PLAYER_CAR.enable();
         carTexture.bind();
