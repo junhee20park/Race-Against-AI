@@ -22,7 +22,7 @@ public class Shader {
     public static final int VERTEX_ATTRIB = 0;
     public static final int TCOORD_ATTRIB = 1;
 
-    public static Shader BG, PLAYER_CAR;
+    public static Shader BG, CAR, OBSTACLE;
 
     private int ID;
     private Map<String, Integer> locationCache = new HashMap<String, Integer>();
@@ -33,7 +33,10 @@ public class Shader {
 
     public static void loadAllShaders() {
         BG = new Shader("shaders/bg.vert", "shaders/bg.frag");
-        PLAYER_CAR = new Shader("shaders/playercar.vert", "shaders/playercar.frag");
+        CAR = new Shader("shaders/car.vert", "shaders/car.frag");
+
+        //TODO: write the vertex and fragment shader for obstacle
+        OBSTACLE = new Shader("shaders/car.vert", "shaders/car.frag");
     }
 
     public int getUniform(String name) {

@@ -50,13 +50,13 @@ public class Main {
             throw new RuntimeException("Failed to create the window.");
 
         // Gets the resolution of the primary monitor.
-        GLFWVidMode vidmode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+        GLFWVidMode vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 
-        // Centers the window. (upper left corner)
+        // Centers the window. (x, y) coordinate is its upper left corner.
         glfwSetWindowPos(
                 window,
-                (vidmode.width() - width) / 2,
-                (vidmode.height() - height) / 2
+                (vidMode.width() - width) / 2,
+                (vidMode.height() - height) / 2
         );
 
         //Creates key callback class to the window.
@@ -76,20 +76,24 @@ public class Main {
 
         Shader.loadAllShaders();
 
-        //TODO: Set the projection matrices for all objects
+        //Set up the projection matrix, texture unit for all shaders.
         Shader.BG.enable();
         Shader.BG.setUniformMat4f("pr_matrix", pr_matrix);
         Shader.BG.setUniform1i("tex", 1);
         Shader.BG.disable();
 
-        Shader.PLAYER_CAR.enable();
-        Shader.PLAYER_CAR.setUniformMat4f("pr_matrix", pr_matrix);
-        Shader.PLAYER_CAR.setUniform1i("tex", 1);
-        Shader.PLAYER_CAR.disable();
+        Shader.CAR.enable();
+        Shader.CAR.setUniformMat4f("pr_matrix", pr_matrix);
+        Shader.CAR.setUniform1i("tex", 1);
+        Shader.CAR.disable();
 
-        //TODO: Draw the game start screen
+        Shader.OBSTACLE.enable();
+        Shader.OBSTACLE.setUniformMat4f("pr_matrix", pr_matrix);
+        Shader.OBSTACLE.setUniform1i("tex", 1);
+        Shader.OBSTACLE.disable();
+
+        // Creates the game start screen.
         startMenu = new StartMenu();
-        //glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
     }
 
     /** While game is running, updates and renders. */
@@ -108,18 +112,17 @@ public class Main {
             update();
             render();
 
-            int i = glGetError();
-            if (i != GL_NO_ERROR) {
-                System.out.println(i);
-            }
+            checkForError();
         }
     }
 
+    /** Updates the game. */
     public void update() {
         glfwPollEvents();
         rc.update();
     }
 
+    /** Renders the new updates on the screen. */
     public void render() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clears the frame buffer.
         rc.render();
@@ -134,19 +137,27 @@ public class Main {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             if (Input.isKeyDown(GLFW_KEY_SPACE)) {
-                //TODO: Draw the race start screen
+                // Creates a race course.
                 rc = new RaceCourse();
                 initWindowOpened = true;
             }
 
-            //Stops while loop if window closes.
+            // Stops while loop if window closes.
             if (glfwWindowShouldClose(window)) {
                 running = false;
             }
 
+            // Keeps rendering the start menu if player does not press space.
             glfwPollEvents();
             startMenu.render();
             glfwSwapBuffers(window);
+        }
+    }
+
+    private void checkForError() {
+        int i = glGetError();
+        if (i != GL_NO_ERROR) {
+            System.out.println(i);
         }
     }
 
