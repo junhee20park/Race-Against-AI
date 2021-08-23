@@ -7,9 +7,13 @@ import raceagainst.input.Input;
 import raceagainst.math.Matrix4f;
 import raceagainst.math.Vector3f;
 
+import java.util.Set;
+
 import static org.lwjgl.glfw.GLFW.*;
 
 public class Car {
+
+    Obstacle[] obstacles;
 
     private float carWidth = 3.0f;
     private float carHeight = 4.0f;
@@ -26,10 +30,10 @@ public class Car {
      * Index 3 = bottom right corner */
     public Car(String carType) {
         float[] vertices = {
-                -carWidth / 2, -carHeight / 2, 0.5f,
-                -carWidth / 2,  carHeight / 2, 0.5f,
-                 carWidth / 2,  carHeight / 2, 0.5f,
-                 carWidth / 2, -carHeight / 2, 0.5f
+                -carWidth / 2.0f, -carHeight / 2.0f, 0.5f,
+                -carWidth / 2.0f,  carHeight / 2.0f, 0.5f,
+                carWidth / 2.0f,  carHeight / 2.0f, 0.5f,
+                carWidth / 2.0f, -carHeight / 2.0f, 0.5f
         };
 
         byte[] indices = {
@@ -48,18 +52,18 @@ public class Car {
         carTexture = new Texture("res/car.png");
 
         if (carType.equals("player")) {
-            position = new Vector3f(-RaceCourse.halfWidth / 2, RaceCourse.startingLineY, 0.0f);
+            position = new Vector3f(-RaceCourse.halfWidth / 2.0f, RaceCourse.startingLineY, 0.0f);
             isPlayer = true;
         } else {
-            position = new Vector3f(RaceCourse.halfWidth / 2, RaceCourse.startingLineY, 0.0f);
+            position = new Vector3f(RaceCourse.halfWidth / 2.0f, RaceCourse.startingLineY, 0.0f);
             isPlayer = false;
         }
     }
 
     /** Updates the position of the car. */
     public void update() {
-        float xDelta = 0.05f;
-        float yDelta = 0.02f;
+        float xDelta = 0.01f;
+        float yDelta = 0.01f;
 
         if (isPlayer)
             playerUpdate(xDelta, yDelta);
@@ -80,15 +84,17 @@ public class Car {
     /** Helper method: Updates the position of the player car based on player input. */
     private void playerUpdate(float xDelta, float yDelta) {
         if (Input.isKeyDown(GLFW_KEY_LEFT)) {
-            if (!wallCollision(-xDelta)) {
+            if (!wallCollision(-xDelta) && !obsCollision("left", -xDelta, 0.0f)) {
                 position.x -= xDelta;
             }
         } else if (Input.isKeyDown(GLFW_KEY_RIGHT)) {
-            if (!wallCollision(xDelta)) {
+            if (!wallCollision(xDelta) && !obsCollision("right", xDelta, 0.0f)) {
                 position.x += xDelta;
             }
         }
-        position.y += yDelta;
+        if (!obsCollision("up",0.0f, yDelta)) {
+            position.y += yDelta;
+        }
     }
 
     /** Helper method: Updates the position of the npc car. */
@@ -101,14 +107,63 @@ public class Car {
     private Boolean wallCollision(float xDelta) {
         if (position.x + xDelta <= -9.5f) {
             return true;
-        }
-        if (position.x + xDelta >= 0.0f) {
+        } else if (position.x + xDelta >= 0.0f) {
             return true;
+        } else {
+            return false;
+        }
+    }
+
+    private Boolean obsCollision(String checkType, float xDelta, float yDelta) {
+        float carX = position.x;
+        float carY = position.y;
+        boolean skip = false;
+
+        float carLeft = carX - (carWidth / 2.0f);
+        float carRight = carX + (carWidth / 2.0f);
+        float carFront = carY + (carHeight / 2.0f);
+        float carBack = carY - (carHeight / 2.0f);
+
+        for (int i = 0; i < obstacles.length; i++) {
+            float obsX = obstacles[i].getX();
+            float obsY = obstacles[i].getY();
+
+            float obsLeft = obsX - (Obstacle.blockWidth / 2.0f);
+            float obsRight = obsX + (Obstacle.blockWidth / 2.0f);
+            float obsTop = obsY + (Obstacle.blockHeight / 2.0f);
+            float obsBottom = obsY - (Obstacle.blockHeight / 2.0f);
+
+            // Skip the check on obstacles where car does not reach it.
+            if (carFront + yDelta < obsBottom || carBack > obsTop) {
+                skip = true;
+            }
+
+            if (!skip) {
+
+                if (checkType.equals("up")) {
+                    if (obsLeft < carRight && carLeft < obsRight) {
+                        if (carFront + yDelta > obsBottom) {
+                            return true;
+                        }
+                    }
+                }
+            }
+
+                /*if (checkType.equals("left")) {
+                    if (carLeft + xDelta < obsRight && carFront > obsBottom && carBack < obsTop) {
+                        return true;
+                    }
+                }
+                if (checkType.equals("right")) {
+                    if (carRight + xDelta > obsLeft && carFront > obsBottom && carBack < obsTop) {
+                        return true;
+                    }
+                }*/
         }
         return false;
     }
 
-    /* private Boolean obstacleCollision() {
-
-    } */
+    private Boolean nonPlayerObsCol(float xDelta, float yDelta) {
+        return true;
+    }
 }

@@ -23,10 +23,10 @@ public class Obstacle {
      * Index 3 = bottom right corner */
     public Obstacle(float x, float y, float z) {
         float[] vertices = {
-                -blockWidth / 2, -blockHeight / 2, 0.5f,
-                -blockWidth / 2,  blockHeight / 2, 0.5f,
-                 blockWidth / 2,  blockHeight / 2, 0.5f,
-                 blockWidth / 2, -blockHeight / 2, 0.5f
+                -blockWidth / 2.0f, -blockHeight / 2.0f, 0.5f,
+                -blockWidth / 2.0f,  blockHeight / 2.0f, 0.5f,
+                 blockWidth / 2.0f,  blockHeight / 2.0f, 0.5f,
+                 blockWidth / 2.0f, -blockHeight / 2.0f, 0.5f
         };
 
         byte[] indices = {
@@ -54,6 +54,10 @@ public class Obstacle {
         block.render();
         blockTexture.unbind();
         Shader.CAR.disable();
+    }
+
+    public Vector3f getPos() {
+        return position;
     }
 
     public float getX() {
