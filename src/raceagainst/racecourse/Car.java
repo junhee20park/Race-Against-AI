@@ -15,8 +15,8 @@ public class Car {
 
     Obstacle[] obstacles;
 
-    private float carWidth = 3.0f;
-    private float carHeight = 4.0f;
+    private float carWidth = 0.5f;
+    private float carHeight = 0.8f;
     private boolean isPlayer;
 
     private VertexArray car;
@@ -62,7 +62,7 @@ public class Car {
 
     /** Updates the position of the car. */
     public void update() {
-        float xDelta = 0.01f;
+        float xDelta = 0.02f;
         float yDelta = 0.01f;
 
         if (isPlayer)
@@ -92,7 +92,7 @@ public class Car {
                 position.x += xDelta;
             }
         }
-        if (!obsCollision("up",0.0f, yDelta)) {
+        if (!obsCollision("up", 0.0f, yDelta)) {
             position.y += yDelta;
         }
     }
@@ -117,12 +117,12 @@ public class Car {
     private Boolean obsCollision(String checkType, float xDelta, float yDelta) {
         float carX = position.x;
         float carY = position.y;
-        boolean skip = false;
+        boolean skip;
 
         float carLeft = carX - (carWidth / 2.0f);
         float carRight = carX + (carWidth / 2.0f);
         float carFront = carY + (carHeight / 2.0f);
-        float carBack = carY - (carHeight / 2.0f);
+        float carBottom = carY - (carHeight / 2.0f);
 
         for (int i = 0; i < obstacles.length; i++) {
             float obsX = obstacles[i].getX();
@@ -134,31 +134,34 @@ public class Car {
             float obsBottom = obsY - (Obstacle.blockHeight / 2.0f);
 
             // Skip the check on obstacles where car does not reach it.
-            if (carFront + yDelta < obsBottom || carBack > obsTop) {
+            // Too much in front     OR      too much in back
+            if (carFront + yDelta < obsBottom || carBottom + yDelta > obsTop) {
                 skip = true;
+            } else {
+                skip = false;
             }
 
             if (!skip) {
-
                 if (checkType.equals("up")) {
                     if (obsLeft < carRight && carLeft < obsRight) {
-                        if (carFront + yDelta > obsBottom) {
+                        if (carFront + yDelta > obsBottom && carBottom + yDelta < obsTop) {
                             return true;
                         }
                     }
                 }
-            }
 
-                /*if (checkType.equals("left")) {
-                    if (carLeft + xDelta < obsRight && carFront > obsBottom && carBack < obsTop) {
+                if (checkType.equals("left")) {
+                    if (carLeft + xDelta < obsRight && carFront > obsBottom && carBottom < obsTop) {
                         return true;
                     }
                 }
+
                 if (checkType.equals("right")) {
-                    if (carRight + xDelta > obsLeft && carFront > obsBottom && carBack < obsTop) {
+                    if (carRight + xDelta > obsLeft && carFront > obsBottom && carBottom < obsTop) {
                         return true;
                     }
-                }*/
+                }
+            }
         }
         return false;
     }

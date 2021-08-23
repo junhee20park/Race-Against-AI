@@ -25,8 +25,8 @@ public class RaceCourse {
     private Obstacle[] playerObs;
     private Obstacle[] nonPlayerObs;
     private Random random;
-    private int obstacleNum = 10;
-    private float obstacleInterval = 1.0f;
+    private int obstacleNum = 9;
+    private float obstacleInterval = 1.2f;
 
     /**
      * Constructs a race course.
