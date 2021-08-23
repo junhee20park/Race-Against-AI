@@ -7,16 +7,14 @@ import raceagainst.input.Input;
 import raceagainst.math.Matrix4f;
 import raceagainst.math.Vector3f;
 
-import java.util.Set;
-
 import static org.lwjgl.glfw.GLFW.*;
 
 public class Car {
 
     Obstacle[] obstacles;
 
-    private float carWidth = 0.5f;
-    private float carHeight = 0.8f;
+    public float carWidth = 0.5f;
+    public float carHeight = 0.8f;
     private boolean isPlayer;
 
     private VertexArray car;
@@ -79,6 +77,10 @@ public class Car {
         car.render();
         carTexture.unbind();
         Shader.CAR.disable();
+    }
+
+    public float getY() {
+        return position.y;
     }
 
     /** Helper method: Updates the position of the player car based on player input. */
@@ -151,13 +153,13 @@ public class Car {
                 }
 
                 if (checkType.equals("left")) {
-                    if (carLeft + xDelta < obsRight && carFront > obsBottom && carBottom < obsTop) {
+                    if (carLeft + xDelta < obsRight && carRight > obsRight && carFront > obsBottom && carBottom < obsTop) {
                         return true;
                     }
                 }
 
                 if (checkType.equals("right")) {
-                    if (carRight + xDelta > obsLeft && carFront > obsBottom && carBottom < obsTop) {
+                    if (carRight + xDelta > obsLeft && carLeft < obsLeft && carFront > obsBottom && carBottom < obsTop) {
                         return true;
                     }
                 }

@@ -3,11 +3,8 @@ package raceagainst.racecourse;
 import raceagainst.graphics.Shader;
 import raceagainst.graphics.Texture;
 import raceagainst.graphics.VertexArray;
-import raceagainst.math.Vector3f;
 
-import java.util.HashSet;
 import java.util.Random;
-import java.util.Set;
 
 /** Creates a race course for the game and manages game updates. */
 public class RaceCourse {
@@ -76,6 +73,15 @@ public class RaceCourse {
     public void update() {
         playerCar.update();
         nonPlayerCar.update();
+        float carFront = playerCar.getY() + playerCar.carHeight / 2.0f;
+        float npcCarFront = nonPlayerCar.getY() + nonPlayerCar.carHeight / 2.0f;
+        if (carFront >= 10.0f * 9.0f / 16.0f && npcCarFront == 10.0f * 9.0f / 16.0f) {
+            System.out.println("It's a tie!");
+        } else if (carFront >= 10.0f * 9.0f / 16.0f) {
+            System.out.println("You win!");
+        } else if (npcCarFront >= 10.0f * 9.0f / 16.0f) {
+            System.out.println("AI won!");
+        }
     }
 
     /**
