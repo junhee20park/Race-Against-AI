@@ -3,8 +3,9 @@ package raceagainst.racecourse;
 import raceagainst.graphics.Shader;
 import raceagainst.graphics.Texture;
 import raceagainst.graphics.VertexArray;
+import raceagainst.math.Vector3f;
 
-import java.util.Random;
+import java.util.*;
 
 /** Creates a race course for the game and manages game updates. */
 public class RaceCourse {
@@ -65,6 +66,7 @@ public class RaceCourse {
 
         random = new Random();
         createObstacles();
+        nonPlayerCar.npcPath = calculateNPCPath();
     }
 
     /**
@@ -75,7 +77,7 @@ public class RaceCourse {
         nonPlayerCar.update();
         float carFront = playerCar.getY() + playerCar.carHeight / 2.0f;
         float npcCarFront = nonPlayerCar.getY() + nonPlayerCar.carHeight / 2.0f;
-        if (carFront >= 10.0f * 9.0f / 16.0f && npcCarFront == 10.0f * 9.0f / 16.0f) {
+        if (carFront >= 10.0f * 9.0f / 16.0f && npcCarFront >= 10.0f * 9.0f / 16.0f) {
             System.out.println("It's a tie!");
         } else if (carFront >= 10.0f * 9.0f / 16.0f) {
             System.out.println("You win!");
@@ -143,5 +145,76 @@ public class RaceCourse {
 
         playerCar.obstacles = playerObs;
         nonPlayerCar.obstacles = nonPlayerObs;
+    }
+
+    /** Returns an ArrayList of points that makes up the shortest path to the finish line
+     * that the NPC car will take. */
+    private ArrayList<Vector3f> calculateNPCPath() {
+        ArrayList<Vector3f> nodes = new ArrayList<>();
+
+        // Treats the racing course as a 0.01 x 0.01 square grid.
+        // Adds all non-obstacles squares to the ArrayList nodes,
+        //  with the z-value in vector as the heuristic to the finish line.
+        for (float y = startingLineY + 0.1f; y < halfHeight; y += 0.1f) {
+            for (float x = 0.0f; x < halfWidth; x += 0.1f) {
+                if (!obsCollision(x, y) && !wallCollision(x, y)) {
+                    nodes.add(new Vector3f(x, y, distToFinish(x, y)));
+                }
+            }
+        }
+        return AStar.pathSearch(nodes);
+    }
+
+    /** Checks if a position point would result in the NPC car colliding into an obstacle. */
+    private Boolean obsCollision(float x, float y) {
+        float carLeft = x - (nonPlayerCar.carWidth / 2.0f);
+        float carRight = x + (nonPlayerCar.carWidth / 2.0f);
+        float carFront = y + (nonPlayerCar.carHeight / 2.0f);
+        float carBottom = y - (nonPlayerCar.carHeight / 2.0f);
+
+        for (int i = 0; i < nonPlayerObs.length; i++) {
+            float obsX = nonPlayerObs[i].getX();
+            float obsY = nonPlayerObs[i].getY();
+
+            float obsLeft = obsX - (Obstacle.blockWidth / 2.0f);
+            float obsRight = obsX + (Obstacle.blockWidth / 2.0f);
+            float obsTop = obsY + (Obstacle.blockHeight / 2.0f);
+            float obsBottom = obsY - (Obstacle.blockHeight / 2.0f);
+
+            // Checks for collision
+            if (obsLeft < carRight && carLeft < obsRight) {
+                if (carFront > obsBottom && carBottom < obsTop) {
+                    return true;
+                }
+            }
+
+            if (carLeft < obsRight && carRight > obsRight && carFront > obsBottom && carBottom < obsTop) {
+                return true;
+            }
+
+            if (carRight > obsLeft && carLeft < obsLeft && carFront > obsBottom && carBottom < obsTop) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Checks if a position point would result in the NPC car colliding into a wall. */
+    private Boolean wallCollision(float x, float y) {
+        float carLeft = x - (nonPlayerCar.carWidth / 2.0f);
+        float carRight = x + (nonPlayerCar.carWidth / 2.0f);
+
+        if (carLeft < 0.0f || carRight > 10.0f) {
+            return true;
+        }
+        return false;
+    }
+
+    /** Calculates the distance to the finish point for the NPC car. */
+    private float distToFinish(float x, float y) {
+        float finX = halfWidth / 2.0f;
+        float finY = halfHeight;
+
+        return (float) Math.sqrt(Math.pow((finX - x), 2.0f) + Math.pow((finY - y), 2.0f));
     }
 }

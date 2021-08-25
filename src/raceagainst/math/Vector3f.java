@@ -1,7 +1,7 @@
 package raceagainst.math;
 
 /** Creates vertices.
- * @source Pulled from TheCherno's Flappy tutorial Vertex3f class.
+ * @source Adapted from TheCherno's Flappy tutorial Vertex3f class.
  *         https://www.youtube.com/watch?v=527bR2JHSR0&t=1266s
  */
 public class Vector3f {
@@ -18,5 +18,17 @@ public class Vector3f {
         this.x = x;
         this.y = y;
         this.z = z;
+    }
+
+    public float getX() {
+        return this.x;
+    }
+
+    public float getY() {
+        return this.y;
+    }
+
+    public float getZ() {
+        return this.z;
     }
 }

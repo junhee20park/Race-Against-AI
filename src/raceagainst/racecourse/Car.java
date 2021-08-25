@@ -1,11 +1,14 @@
 package raceagainst.racecourse;
 
+import raceagainst.Main;
 import raceagainst.graphics.Shader;
 import raceagainst.graphics.Texture;
 import raceagainst.graphics.VertexArray;
 import raceagainst.input.Input;
 import raceagainst.math.Matrix4f;
 import raceagainst.math.Vector3f;
+
+import java.util.ArrayList;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -15,6 +18,7 @@ public class Car {
 
     public float carWidth = 0.5f;
     public float carHeight = 0.8f;
+    public ArrayList<Vector3f> npcPath;
     private boolean isPlayer;
 
     private VertexArray car;
@@ -52,6 +56,7 @@ public class Car {
         if (carType.equals("player")) {
             position = new Vector3f(-RaceCourse.halfWidth / 2.0f, RaceCourse.startingLineY, 0.0f);
             isPlayer = true;
+            npcPath = null;
         } else {
             position = new Vector3f(RaceCourse.halfWidth / 2.0f, RaceCourse.startingLineY, 0.0f);
             isPlayer = false;
@@ -79,6 +84,10 @@ public class Car {
         Shader.CAR.disable();
     }
 
+    public float getX() {
+        return position.x;
+    }
+
     public float getY() {
         return position.y;
     }
@@ -101,7 +110,11 @@ public class Car {
 
     /** Helper method: Updates the position of the npc car. */
     private void npcUpdate(float xDelta, float yDelta) {
-        position.y += yDelta;
+        if (npcPath.size() != 0) {
+            Vector3f newPos = npcPath.remove(npcPath.size() - 1);
+            position.x = newPos.getX();
+            position.y = newPos.getY();
+        }
     }
 
     /** Helper method: Checks if car will collide into a wall
