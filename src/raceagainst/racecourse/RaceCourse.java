@@ -24,6 +24,7 @@ public class RaceCourse {
     private Obstacle[] nonPlayerObs;
     private Random random;
     private int obstacleNum = 9;
+    // The vertical (y-axis) interval between obstacles.
     private float obstacleInterval = 1.2f;
 
     /**
@@ -66,15 +67,18 @@ public class RaceCourse {
 
         random = new Random();
         createObstacles();
+
+        // Calculates the path for NPC car using A* search algorithm.
         nonPlayerCar.npcPath = calculateNPCPath();
     }
 
-    /**
-     * Updates the race course.
-     */
+    /** Updates the cars. */
     public void update() {
         playerCar.update();
         nonPlayerCar.update();
+
+        // Checks if either the player car or AI car has passed the finish line.
+        // (Finish line is when a car's front end hits the end of the screen.)
         float carFront = playerCar.getY() + playerCar.carHeight / 2.0f;
         float npcCarFront = nonPlayerCar.getY() + nonPlayerCar.carHeight / 2.0f;
         if (carFront >= 10.0f * 9.0f / 16.0f && npcCarFront >= 10.0f * 9.0f / 16.0f) {
@@ -86,9 +90,7 @@ public class RaceCourse {
         }
     }
 
-    /**
-     * Renders the race course, including background, cars and obstacles.
-     */
+    /** Renders the race course, including background, cars and obstacles. */
     public void render() {
         // Render the race background.
         Shader.BG.enable();
@@ -124,6 +126,8 @@ public class RaceCourse {
             float xVal = -10.0f * random.nextFloat();
             boolean outOfScreen = true;
 
+            // Checks to see if the x-value generated results in obstacle being outside of screen.
+            //  Regenerates a new x-value if this is the case.
             while (outOfScreen) {
                 if (xVal - (Obstacle.blockWidth / 2.0f) > -10.0f &&
                         xVal + (Obstacle.blockWidth / 2.0f) < 0.0f) {
@@ -137,6 +141,7 @@ public class RaceCourse {
             yVal += obstacleInterval;
         }
 
+        // Shifts over the player values to generate the non-player obstacle position values
         for (int i = 0; i < obstacleNum; i++) {
             // NPC window width: [0.0f, 10.0f] = player value shifted over by +10.0f
             Obstacle obs = playerObs[i];
@@ -152,7 +157,7 @@ public class RaceCourse {
     private ArrayList<Vector3f> calculateNPCPath() {
         ArrayList<Vector3f> nodes = new ArrayList<>();
 
-        // Treats the racing course as a 0.01 x 0.01 square grid.
+        // Treats the racing course as a 0.1 x 0.1 square grid.
         // Adds all non-obstacles squares to the ArrayList nodes,
         //  with the z-value in vector as the heuristic to the finish line.
         for (float y = startingLineY + 0.1f; y < halfHeight; y += 0.1f) {
@@ -165,13 +170,15 @@ public class RaceCourse {
         return AStar.pathSearch(nodes);
     }
 
-    /** Checks if a position point would result in the NPC car colliding into an obstacle. */
+    /** Returns whether the given position point would
+     * result in the NPC car colliding into an obstacle. */
     private Boolean obsCollision(float x, float y) {
         float carLeft = x - (nonPlayerCar.carWidth / 2.0f);
         float carRight = x + (nonPlayerCar.carWidth / 2.0f);
         float carFront = y + (nonPlayerCar.carHeight / 2.0f);
         float carBottom = y - (nonPlayerCar.carHeight / 2.0f);
 
+        // Checks for collision for all obstacle in npc car's race track.
         for (int i = 0; i < nonPlayerObs.length; i++) {
             float obsX = nonPlayerObs[i].getX();
             float obsY = nonPlayerObs[i].getY();
@@ -199,7 +206,8 @@ public class RaceCourse {
         return false;
     }
 
-    /** Checks if a position point would result in the NPC car colliding into a wall. */
+    /** Returns whether the given position point would
+     * result in the NPC car colliding into a wall. */
     private Boolean wallCollision(float x, float y) {
         float carLeft = x - (nonPlayerCar.carWidth / 2.0f);
         float carRight = x + (nonPlayerCar.carWidth / 2.0f);
@@ -210,7 +218,8 @@ public class RaceCourse {
         return false;
     }
 
-    /** Calculates the distance to the finish point for the NPC car. */
+    /** Calculates the distance from the given point
+     * to the finish point for the NPC car. */
     private float distToFinish(float x, float y) {
         float finX = halfWidth / 2.0f;
         float finY = halfHeight;
